@@ -1,4 +1,5 @@
 import path from "path";
+import mime from "mime-types";
 import express from "express";
 import webpack from "webpack";
 import webpackDevMiddleware from "webpack-dev-middleware";
@@ -34,6 +35,8 @@ if (isDevelopment) {
       if (err) {
         return next(err);
       }
+      console.log(req.originalUrl);
+      console.log(HTML_FILE);
       res.set('content-type', 'text/html');
       res.send(result);
       res.end();
@@ -46,4 +49,4 @@ else {
   app.get("*", (req, res) => res.sendFile(HTML_FILE));
 }
 
-app.listen(app.get("port"), () => { console.log(`Server listening on: ${process.env.PORT || DEFAULT_PORT}`) });
+app.listen(app.get("port"), () => { console.log(`Server listening on: ${process.env.PORT || DEFAULT_PORT}\nMode: ${process.env.NODE_ENV}`) });
