@@ -49,4 +49,4 @@ else {
   app.get("*", (req, res) => res.sendFile(HTML_FILE));
 }
 
-app.listen(app.get("port"), () => { console.log(`Server listening on: ${process.env.PORT || DEFAULT_PORT}\nMode: ${process.env.NODE_ENV}`) });
+app.listen(app.get("port"), () => { console.log(`Server listening on: ${process.env.PORT || DEFAULT_PORT}\nMode: ${process.env.NODE_ENV || 'development'}`) });

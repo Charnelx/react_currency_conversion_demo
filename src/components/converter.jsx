@@ -1,45 +1,14 @@
+// Import default member, {member} from the module react
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import axios from 'axios';
 import PropTypes from 'prop-types';
 import { Button, FormGroup, FormControl, ControlLabel, Navbar } from 'react-bootstrap';
-// import { bootstrapUtils } from 'react-bootstrap/lib/utils';
+import store from './store';
+import CurrencyFromOptions from './convertor_cmp/cur_form_opt';
+import CurrencyToOptions from './convertor_cmp/cur_to_opt';
 
 import './general.css';
-
-// bootstrapUtils.addStyle(FormGroup, 'custom');
-
-const defaultProps = {
-  AUD:1.5173,
-  BGN:1.9558,
-  BRL:3.6308,
-  CAD:1.5169,
-  CHF:1.0893,
-  CNY:7.6507,
-  CZK:26.36,
-  DKK:7.4392,
-  GBP:0.87268,
-  HKD:8.7413,
-  HRK:7.4113,
-  HUF:308.45,
-  IDR:14931.0,
-  ILS:3.9938,
-  INR:72.286,
-  JPY:125.02,
-  KRW:1260.0,
-  MXN:20.898,
-  MYR:4.8014,
-  NOK:9.4918,
-  NZD:1.5811,
-  PHP:55.553,
-  PLN:4.1925,
-  RON:4.5653,
-  RUB:63.462,
-  SEK:9.7433,
-  SGD:1.5552,
-  THB:38.306,
-  TRY:3.9601,
-  USD:1.1217,
-  ZAR:14.437
-};
 
 class NavBarTop extends Component {
   render() {
@@ -56,94 +25,51 @@ class NavBarTop extends Component {
   }
 }
 
-class CurrencyFromOptions extends Component {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      currencies: this.props.currencies,
-      selectedCurrency: 'EUR'
-    };
-  }
-
-  getOptions() {
-    const options = Object.keys(this.state.currencies).map((symbol) => {
-      return (
-        <option key={symbol} value={symbol} >
-          {symbol}
-        </option>
-      );
-    });
-
-    return options;
-  }
-
-  render() {
-    return (
-      <FormControl componentClass='select' placeholder='From'>
-        {this.getOptions()}
-      </FormControl>
-    );
-  }
-}
-
-class CurrencyToOptions extends Component {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      currencies: this.props.currencies,
-      selectedCurrency: 'EUR'
-    };
-  }
-
-  getOptions() {
-    const options = Object.keys(this.state.currencies).map((symbol) => {
-      return (
-        <option key={symbol} value={symbol} >
-          {symbol}
-        </option>
-      );
-    });
-
-    return options;
-  }
-
-  render() {
-    return (
-      <FormControl componentClass='select' placeholder='To'>
-        {this.getOptions()}
-      </FormControl>
-    );
-  }
-}
-
 class Converter extends Component {
+
   constructor(props) {
     super(props);
-
-    this.handleCurFromChange = this.handleCurFromChange.bind(this);
-    this.handleCurToChange = this.handleCurToChange.bind(this);
     this.handleAmountChange = this.handleAmountChange.bind(this);
-
-    this.state = {
-      currencies: this.props.currencies,
-      curFrom: 'EUR',
-      curTo: 'EUR',
-      amountValue: 0
-    };
+    this.handleRunBtn = this.handleRunBtn.bind(this);
   }
 
-  handleCurFromChange(val) {
-    this.setState({ curFrom: val });
-  }
-
-  handleCurToChange(val) {
-    this.setState({ curTo: val });
+  componentDidMount() {
+    axios.get('http://api.fixer.io/latest').then(response => {
+      store.dispatch({
+        type: 'UPDATE_CURRENCY_LIST',
+        currencies: response.data
+      });
+    });
   }
 
   handleAmountChange(e) {
-    this.setState({ amountValue: e.target.value });
+    store.dispatch({
+      type: 'SET_AMOUNT',
+      value: e.target.value
+    });
+  }
+
+  handleRunBtn(e) {
+    axios.get('http://api.fixer.io/latest', {
+      params: {
+        base: this.props.symbolFrom,
+        symbols: this.props.symbolTo
+      }
+    }).then(response => {
+      const rate = response.data.rates[this.props.symbolTo];
+      let result = ((rate * (this.props.amount)).toFixed(2));
+
+      if (isNaN(result)) {
+        alert('Forgot to set amount?');
+        result = 0;
+      }
+
+      store.dispatch({
+        type: 'SET_RESULT',
+        value: result
+      });
+    });
+    e.preventDefault();
   }
 
   render() {
@@ -155,19 +81,19 @@ class Converter extends Component {
         <div className='container form-control-col-centered'>
           <div className='row'>
             <FormGroup controlId='curSelectFrom' className='col-sm-6'>
-              <ControlLabel>From</ControlLabel>
-              <CurrencyFromOptions currencies={this.props.currencies}/>
+              <ControlLabel>From:</ControlLabel>
+              <CurrencyFromOptions />
             </FormGroup>
             <FormGroup controlId='curSelectTo' className='col-sm-6'>
               <ControlLabel>To</ControlLabel>
-              <CurrencyToOptions currencies={this.props.currencies}/>
+              <CurrencyToOptions/>
             </FormGroup>
           </div>
           <FormGroup controlId='amount' bsSize='small'>
             <ControlLabel>Amount:</ControlLabel>
             <FormControl
               type='text'
-              value={this.state.amountValue}
+              value={this.props.amount}
               placeholder='Enter amount'
               onChange={this.handleAmountChange}
               bsSize='small'
@@ -175,28 +101,37 @@ class Converter extends Component {
             <FormControl.Feedback />
           </FormGroup>
           <FormGroup controlId='conversionResult'>
-            <ControlLabel>Result</ControlLabel>
-            <FormControl componentClass='textarea' placeholder='0' />
+            <ControlLabel>Result:</ControlLabel>
+            <FormControl
+              componentClass='textarea'
+              placeholder='0'
+              value={this.props.result}
+            />
           </FormGroup>
-          <Button bsStyle='primary'>Run</Button>
+          <Button bsStyle='primary' onClick={this.handleRunBtn}>Run</Button>
         </div>
       </div>
     );
   }
 }
 
-Converter.defaultProps = { currencies: defaultProps };
-
-CurrencyFromOptions.propTypes = {
-  currencies: PropTypes.object
+Converter.propType = {
+  currencies: PropTypes.object,
+  symbolFrom: PropTypes.string,
+  symbolTo:   PropTypes.string,
+  amount:     PropTypes.string,
+  result:     PropTypes.object
 };
 
-CurrencyToOptions.propTypes = {
-  currencies: PropTypes.object
-};
 
-Converter.propTypes = {
-  currencies: PropTypes.object
-};
+function mapStateToProps(storage) {
+  return {
+    currencies: storage.currencyState.list,
+    symbolFrom: storage.fromSelectState.fromSelect,
+    symbolTo:   storage.toSelectState.toSelect,
+    amount:     storage.amountState.amount,
+    result:     storage.resultState.result
+  };
+}
 
-export default Converter;
+export default connect(mapStateToProps)(Converter);

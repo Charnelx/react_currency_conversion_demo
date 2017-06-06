@@ -37,7 +37,8 @@ if (process.env.NODE_ENV === 'production') {
       compress: {
         screw_ie8: true
       },
-      comments: false
+      comments: false,
+      sourceMap: true
     })
   );
 }
@@ -81,7 +82,7 @@ module.exports = {
       { test: /\.json$/, use: 'json-loader' },
     ]
   },
-  devtool: process.env.NODE_ENV !== 'production' ? 'source-map' : false,
+  devtool: process.env.NODE_ENV !== 'production' ? 'eval-source-map' : false,
   devServer: {
     headers: { 'Access-Control-Allow-Origin': '*' }
   }

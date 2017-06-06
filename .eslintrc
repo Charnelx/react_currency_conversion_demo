@@ -12,24 +12,26 @@
     "es6": true
   },
 
-  "ecmaFeatures": {
-    "arrowFunctions": true,
-    "blockBindings": true,
-    "classes": true,
-    "defaultParams": true,
-    "destructuring": true,
-    "forOf": true,
-    "generators": false,
-    "modules": true,
-    "objectLiteralComputedProperties": true,
-    "objectLiteralDuplicateProperties": false,
-    "objectLiteralShorthandMethods": true,
-    "objectLiteralShorthandProperties": true,
-    "restParams": true,
-    "spread": true,
-    "superInFunctions": true,
-    "templateStrings": true,
-    "jsx": true
+  "parserOptions": {
+    "ecmaFeatures": {
+      "arrowFunctions": true,
+      "blockBindings": true,
+      "classes": true,
+      "defaultParams": true,
+      "destructuring": true,
+      "forOf": true,
+      "generators": false,
+      "modules": true,
+      "objectLiteralComputedProperties": true,
+      "objectLiteralDuplicateProperties": false,
+      "objectLiteralShorthandMethods": true,
+      "objectLiteralShorthandProperties": true,
+      "restParams": true,
+      "spread": true,
+      "superInFunctions": true,
+      "templateStrings": true,
+      "jsx": true
+    }
   },
 
   "rules":{
@@ -197,7 +199,7 @@
     "react/jsx-indent-props": [2, 2],
     "react/jsx-indent": [2, 2],
     "react/jsx-key": 2,
-    "react/jsx-max-props-per-line": [2, {maximum: 3}],
+    "react/jsx-max-props-per-line": [2, {"maximum": 3}],
     "react/jsx-no-bind": [2, {
       "ignoreRefs": true,
       "allowBind": true,
@@ -218,7 +220,7 @@
     "react/no-string-refs": 2,
     "react/no-unknown-property": 2,
     "react/prefer-es6-class": 2,
-    "react/prop-types": 2,
+    "react/prop-types": 1,
     "react/react-in-jsx-scope": 2,
     "react/self-closing-comp": 2,
     "react/sort-comp": [2, {
